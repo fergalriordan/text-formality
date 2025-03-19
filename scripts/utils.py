@@ -1,6 +1,9 @@
 import pandas as pd
 from tqdm import tqdm
 import torch
+import matplotlib.pyplot as plt
+import seaborn as sns
+from tabulate import tabulate
 
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
@@ -71,3 +74,28 @@ def calculate_metrics(y_true, y_pred):
     f1 = f1_score(y_true, y_pred)
     
     return accuracy, precision, recall, f1
+
+# Display metrics in a visually appealing way
+def display_metrics(model_name, cm, accuracy, precision, recall, f1):
+    # Create metrics table
+    metrics_table = [
+        ["Accuracy", f"{accuracy:.4f}"],
+        ["Precision", f"{precision:.4f}"],
+        ["Recall", f"{recall:.4f}"],
+        ["F1 Score", f"{f1:.4f}"]
+    ]
+    
+    print(f"\n{model_name} Performance Metrics:")
+    print("="*50)
+    print(tabulate(metrics_table, headers=["Metric", "Value"], tablefmt="fancy_grid"))
+    
+    # Display confusion matrix as a heatmap
+    plt.figure(figsize=(6, 4))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                xticklabels=['Informal (0)', 'Formal (1)'],
+                yticklabels=['Informal (0)', 'Formal (1)'])
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title(f'{model_name} Confusion Matrix')
+    plt.tight_layout()
+    plt.show()
