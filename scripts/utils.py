@@ -1,5 +1,6 @@
 import pandas as pd
 from tqdm import tqdm
+import torch
 
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
@@ -12,12 +13,17 @@ def load_data():
     return train_df, test_df
 
 # Predict formality using a Hugging Facemodel
-def predict_formality(model, tokenizer, df, batch_size=4):
+def predict_formality(model, tokenizer, df, return_token_type_ids=True, truncate=True, padding="max_length", batch_size=4):
     id2formality = {0: "formal", 1: "informal"} # from model documentation on Hugging Face
 
     predicted_labels = [] # 0 for informal, 1 for formal (consistent with dataset labels)
     predicted_logits = [] # store the confidence scores for each prediction
-
+    
+    # Check if GPU is available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device: {device}")
+    model = model.to(device)
+    
     for i in tqdm(range(0, len(df), batch_size)):
         texts = df['sentence'][i:i + batch_size].tolist()
 
@@ -25,11 +31,14 @@ def predict_formality(model, tokenizer, df, batch_size=4):
         encoding = tokenizer(
             texts,
             add_special_tokens=True,
-            return_token_type_ids=True,
-            truncation=True,
-            padding="max_length",
+            return_token_type_ids=return_token_type_ids,
+            truncation=truncate,
+            padding=padding,
             return_tensors="pt",
         )
+        
+        # Move input tensors to the same device as the model
+        encoding = {k: v.to(device) for k, v in encoding.items()}
 
         # inference
         output = model(**encoding)
@@ -37,6 +46,8 @@ def predict_formality(model, tokenizer, df, batch_size=4):
         batch_predicted_labels = []
         batch_predicted_logits = []
         for text_scores in output.logits.softmax(dim=1):
+            # Move logits to CPU for post-processing
+            text_scores = text_scores.cpu()
             score_dict = {id2formality[idx]: score for idx, score in enumerate(text_scores.tolist())}
             predicted_label = 1 if score_dict['formal'] > score_dict['informal'] else 0
             batch_predicted_labels.append(predicted_label)
