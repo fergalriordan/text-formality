@@ -2,9 +2,11 @@
 
 ## Project Overview
 
-> **N.B. For a thorough discussion of the work carried out in this project and an analysis of the results, consult the [project report](docs/report.pdf).**
+> **N.B. For a thorough discussion of the work carried out in this project and an analysis of the results, consult the [project report](docs/report.md).**
 
-The goal of this project is to create an evaluation system for a formality detection model. Formality detection can be framed as a binary classification task, where we train a model to classify whether some sample text either is formal (1) or informal (0). Alternatively, we can view the classification in a continuous manner, where the model measures the formality of text along a continuous spectrum of formality values. In this project, both possibilities are explored, comparing several transformer-based models in this classification task. This README document is structured as follows:
+The goal of this project is to create an evaluation system for a formality detection model. Formality detection can be framed as a regression task, where we seek to measure the formality of a text sample along a continuous spectrum. Alternatively, we can view it as a binary classification task, where we train a model to classify whether some sample text either is formal (1) or informal (0). While the viability of the former is touched on in this project, the code implementation focuses on the latter: formality detection as a binary classification task.
+
+This README document is structured as follows:
 
 - Repository Structure
 - Dependencies
