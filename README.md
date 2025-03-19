@@ -2,13 +2,13 @@
 
 ## Project Overview
 
+>**N.B. For a thorough discussion of the work carried out in this project and an analysis of the results, consult the [project report](docs/report.pdf).**
+
 The goal of this project is to create an evaluation system for a formality detection model. Formality detection can be framed as a binary classification task, where we train a model to classify whether some sample text either is formal (1) or informal (0). Alternatively, we can view the classification in a continuous manner, where the model measures the formality of text along a continuous spectrum of formality values. In this project, both possibilities are explored, comparing several transformer-based models in this classification task. This README document is structured as follows: 
 
 * Repository Structure
 * Dependencies
 * Running the Scripts
-
-For a thorough discussion of the work carried out in this project and an analysis of the results, consult the docs/report.pdf document.
 
 ## Repository Structure
 
@@ -18,8 +18,8 @@ The repository is structured as follows:
 text-formality/
 │── scripts/                        # Scripts for data processing and model evaluation 
 │   ├── data_visualisation.ipynb    # Jupyter notebook for preliminary exploration/visualisation of the dataset 
-│   ├── data_prep.py                # Script for collecting and preprocessing dataset for subsequent evaluations 
 │   ├── evals.ipynb                 # Jupyter notebook for model evaluation and comparison  
+│   ├── utils.py                    # Helper functions for data handling and evaluation  
 │── docs/                           # Documentation and reports  
 │   ├── report.pdf                  # Short report describing methodology, results, and challenges  
 │   ├── dataset_overview.md         # Detailed description of datasets and sources  
