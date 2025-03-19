@@ -7,3 +7,5 @@ tabulate
 scikit-learn
 datasets
 transformers
+numpy
+gensim-downloader

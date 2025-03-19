@@ -33,12 +33,14 @@ To set up the environment and run the scripts, install the required dependencies
 
 - Python
 - Jupyter Notebook
+- NumPy
 - TQDM
 - Torch
 - Matplotlib
 - Seaborn
 - Tabulate
 - Scikit-learn
+- Gensim-downloader
 - Transformers (Hugging Face) – For working with transformer-based models
 
 ## Running the Scripts
