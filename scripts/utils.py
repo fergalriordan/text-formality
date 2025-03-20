@@ -6,6 +6,7 @@ import seaborn as sns
 from tabulate import tabulate
 
 from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import roc_curve, auc, RocCurveDisplay
 
 # Load data from Hugging Face dataset
 def load_data():
@@ -20,7 +21,7 @@ def predict_formality(model, tokenizer, df, return_token_type_ids=True, truncate
     id2formality = {0: "formal", 1: "informal"} # from model documentation on Hugging Face
 
     predicted_labels = [] # 0 for informal, 1 for formal (consistent with dataset labels)
-    predicted_logits = [] # store the confidence scores for each prediction
+    positive_logits = [] # store the confidence scores for the positive class (formal)
     
     # Check if GPU is available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -47,19 +48,21 @@ def predict_formality(model, tokenizer, df, return_token_type_ids=True, truncate
         output = model(**encoding)
 
         batch_predicted_labels = []
-        batch_predicted_logits = []
+        batch_positive_logits = []
         for text_scores in output.logits.softmax(dim=1):
             # Move logits to CPU for post-processing
             text_scores = text_scores.cpu()
             score_dict = {id2formality[idx]: score for idx, score in enumerate(text_scores.tolist())}
             predicted_label = 1 if score_dict['formal'] > score_dict['informal'] else 0
             batch_predicted_labels.append(predicted_label)
-            batch_predicted_logits.append(score_dict['formal'] if predicted_label == 1 else score_dict['informal'])
+            
+            # Always store the probability for the formal class (regardless of prediction)
+            batch_positive_logits.append(score_dict['formal'])
 
         predicted_labels.extend(batch_predicted_labels)
-        predicted_logits.extend(batch_predicted_logits)
+        positive_logits.extend(batch_positive_logits)
 
-    return predicted_labels, predicted_logits
+    return predicted_labels, positive_logits
 
 # Calculate Confusion Matrix (Binary Classification)
 def calculate_confusion_matrix(y_true, y_pred):
@@ -74,6 +77,41 @@ def calculate_metrics(y_true, y_pred):
     f1 = f1_score(y_true, y_pred)
     
     return accuracy, precision, recall, f1
+
+# Calculate and display ROC curve and AUC score
+def calculate_and_display_roc_auc(model_names, y_trues, y_probs, title="ROC Curve Comparison"):
+    if not isinstance(model_names, list):
+        model_names = [model_names]
+        y_trues = [y_trues]
+        y_probs = [y_probs]
+    
+    # Create the figure
+    plt.figure(figsize=(8, 6))
+    
+    # Add reference line for random performance
+    plt.plot([0, 1], [0, 1], 'k--', alpha=0.6, label='Random')
+    
+    # Plot ROC curve for each model
+    for i, (model_name, y_true, y_prob) in enumerate(zip(model_names, y_trues, y_probs)):
+        # Calculate ROC curve and AUC
+        fpr, tpr, _ = roc_curve(y_true, y_prob)
+        auc_score = auc(fpr, tpr)
+        
+        # Add to plot
+        display = RocCurveDisplay(
+            fpr=fpr,
+            tpr=tpr,
+            roc_auc=auc_score,
+            estimator_name=f"{model_name}"
+        )
+        display.plot(ax=plt.gca(), alpha=0.8)
+    
+    # Customize the plot
+    plt.title(title)
+    plt.grid(True, alpha=0.3)
+    plt.legend(loc='lower right')
+    plt.tight_layout()
+    plt.show()
 
 # Display metrics in a visually appealing way
 def display_metrics(model_name, cm, accuracy, precision, recall, f1):
