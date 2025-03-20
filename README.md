@@ -24,6 +24,7 @@ text-formality/
 │   ├── utils.py                    # Helper functions for data handling and evaluation
 │── docs/
 │   ├── report.md                   # Short report describing methodology, results, and challenges
+│── images/
 │── README.md
 │── requirements.txt
 │── .gitignore
