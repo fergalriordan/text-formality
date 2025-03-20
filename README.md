@@ -23,7 +23,7 @@ text-formality/
 │   ├── evals.ipynb                 # Jupyter notebook for model evaluation and comparison
 │   ├── utils.py                    # Helper functions for data handling and evaluation
 │── docs/
-│   ├── report.pdf                  # Short report describing methodology, results, and challenges
+│   ├── report.md                   # Short report describing methodology, results, and challenges
 │── README.md
 │── requirements.txt
 │── .gitignore
